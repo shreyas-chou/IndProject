@@ -14,7 +14,6 @@ public:
 	string isbn;
 	string title;
 	string course;
-	string characteristic;
 	string cost;
 	string dateOfPublication;
 	string author;
@@ -50,26 +49,26 @@ int main(int argc, char * argv[]) {
 	inFile.open("test.txt");
 	string userInput, token;
 
-	while (getline(inFile, userInput)){
+	while (getline(inFile, userInput)) {
 
 
 		cout << "> ";
-	
-		
+
+
 
 		//Retrieving the input from user and parsing it
 		vector <string> parsedInput;
-		
+
 		stringstream check1(userInput);
 
-		while (getline(check1, token,' '))
+		while (getline(check1, token, ' '))
 		{
 			parsedInput.push_back(token);
 			//cout << token << endl;
 		}
-		
+
 		//tokenizing userinput
-		
+
 		//ANALYZING THE INPUT TO DETERINE WHICH COMMAND IT IS
 		//parsedInput[0] is the COMMAND
 
@@ -85,7 +84,8 @@ int main(int argc, char * argv[]) {
 				tempBook.isbn = parsedInput[1];
 				for (int lcv = 2; lcv < parsedInput.size(); lcv++)
 				{
-				tempBook.title += parsedInput[lcv];
+					tempBook.title += parsedInput[lcv];
+					tempBook.title += " ";
 
 				}
 			}
@@ -109,6 +109,7 @@ int main(int argc, char * argv[]) {
 							for (int lcv2 = 3; lcv2 < parsedInput.size(); lcv2++)
 							{
 								bookList[lcv].author += parsedInput[lcv2];
+								bookList[lcv].author += " ";
 							}
 
 						}
@@ -121,7 +122,7 @@ int main(int argc, char * argv[]) {
 						}
 						else if (parsedInput[2] == "D")
 						{
-							bookList[lcv].dateOfPublication = parsedInput[3];	
+							bookList[lcv].dateOfPublication = parsedInput[3];
 						}
 						else {
 							throw invalid_argument("Not proper arguments");
@@ -146,11 +147,14 @@ int main(int argc, char * argv[]) {
 					{
 						found = true;
 						bookList[lcv].cost = parsedInput[2];
-						if (parsedInput[3] == "N" || parsedInput[3] == "U"
-							|| parsedInput[3] == "R" || parsedInput[3] == "E")
-						{
-							bookList[lcv].version = parsedInput[3];
-						}
+						if (parsedInput[3] == "N")
+							bookList[lcv].version = "New";
+						else if(parsedInput[3] == "U")
+							bookList[lcv].version = "Used";
+						else if(parsedInput[3] == "R" )
+							bookList[lcv].version = "Rental";
+						else if(parsedInput[3] == "E")
+							bookList[lcv].version = "Electronic";
 						else {
 							throw invalid_argument("Not a proper version");
 						}
@@ -208,7 +212,16 @@ int main(int argc, char * argv[]) {
 									sections tempSection;
 									tempSection.sectionNum = parsedInput[4];
 									tempSection.books.push_back(bookList[lcv]);
-									tempSection.books[tempSection.books.size() - 1].forcedBook = parsedInput[5];
+									if (parsedInput[5] == "R")
+									{
+										tempSection.books[tempSection.books.size() - 1].forcedBook = "Required";
+									}
+									else if (parsedInput[5] == "O") {
+										tempSection.books[tempSection.books.size() - 1].forcedBook = "Optional";
+									}
+									else {
+										throw invalid_argument("Not a proper requirement. ");
+									}
 									courseList[lcv2].courseSections.push_back(tempSection);
 
 
@@ -259,9 +272,8 @@ int main(int argc, char * argv[]) {
 							for (int lcv3 = 0; lcv3 < courseList[lcv].courseSections[lcv2].books.size(); lcv3++)
 							{
 								cout << endl;
-								cout << "-------------------------------------------------" << endl;
-								cout << courseList[lcv].courseSections[lcv2].books[lcv3].title << endl;
-								cout << "-------------------------------------------------" << endl;
+								cout << "Books required for " << courseList[lcv].deptID<<" "<< courseList[lcv].courseNum<<" "<< courseList[lcv].courseSections[lcv2].sectionNum << " : " << endl;
+								cout << courseList[lcv].courseSections[lcv2].books[lcv3].title << " - " << courseList[lcv].courseSections[lcv2].books[lcv3].isbn << endl;
 								cout << endl;
 							}
 						}
@@ -276,36 +288,35 @@ int main(int argc, char * argv[]) {
 		}
 		else if (parsedInput[0] == "GS")
 		{
-		bool found = false;
-		try {
-			if (parsedInput.size() != 4)
-				throw invalid_argument("Not correct input size.");
-			for (int lcv = 0; lcv < courseList.size(); lcv++) {
-				if (courseList[lcv].deptID == parsedInput[1] && courseList[lcv].courseNum == parsedInput[2])
-				{
-					for (int lcv2 = 0; lcv2 < courseList[lcv].courseSections.size(); lcv2++)
+			bool found = false;
+			try {
+				if (parsedInput.size() != 4)
+					throw invalid_argument("Not correct input size.");
+				for (int lcv = 0; lcv < courseList.size(); lcv++) {
+					if (courseList[lcv].deptID == parsedInput[1] && courseList[lcv].courseNum == parsedInput[2])
 					{
-						if (parsedInput[3] == courseList[lcv].courseSections[lcv2].sectionNum)
+						for (int lcv2 = 0; lcv2 < courseList[lcv].courseSections.size(); lcv2++)
 						{
-							for (int lcv3 = 0; lcv3 < courseList[lcv].courseSections[lcv2].books.size(); lcv3++)
+							if (parsedInput[3] == courseList[lcv].courseSections[lcv2].sectionNum)
 							{
-								found = true;
-								cout << endl;
-								cout << "-------------------------------------------------" << endl;
-								cout << courseList[lcv].courseSections[lcv2].books[lcv3].title << endl;
-								cout << "-------------------------------------------------" << endl;
-								cout << endl;
+								for (int lcv3 = 0; lcv3 < courseList[lcv].courseSections[lcv2].books.size(); lcv3++)
+								{
+									found = true;
+									cout << endl;
+									cout << "Books required for " << courseList[lcv].deptID << " " << courseList[lcv].courseNum << " " << courseList[lcv].courseSections[lcv2].sectionNum << " : " << endl;
+									cout << courseList[lcv].courseSections[lcv2].books[lcv3].title << " - " << courseList[lcv].courseSections[lcv2].books[lcv3].isbn << endl;
+									cout << endl;
+								}
 							}
 						}
 					}
 				}
+				if (!found)
+					throw invalid_argument("Book/Course not found");
 			}
-			if (!found)
-				throw invalid_argument("Book/Course not found");
-		}
-		catch (invalid_argument e) {
-			cout << e.what() << endl;
-		}
+			catch (invalid_argument e) {
+				cout << e.what() << endl;
+			}
 		}
 		else if (parsedInput[0] == "GB")
 		{
@@ -318,7 +329,24 @@ int main(int argc, char * argv[]) {
 					if (parsedInput[1] == bookList[lcv].isbn)
 					{
 						found = true;
+						cout << endl;
 						cout << "Title: " << bookList[lcv].title << endl;
+						cout << "ISBN: " << bookList[lcv].isbn << endl;
+						if (!bookList[lcv].author.empty())
+							cout << "Author: " << bookList[lcv].author << endl;
+						if (!bookList[lcv].cost.empty())
+							cout<<"Price: "<< bookList[lcv].cost << endl;
+						if (!bookList[lcv].dateOfPublication.empty())
+							cout << "Date of Publication: " << bookList[lcv].dateOfPublication << endl;
+						if (!bookList[lcv].edition.empty())
+							cout << "Edition: " << bookList[lcv].edition << endl;
+						if (!bookList[lcv].version.empty())
+							cout<<"Version: "<< bookList[lcv].version << endl;
+						if (!bookList[lcv].forcedBook.empty())
+							cout << "Required : "<< bookList[lcv].forcedBook << endl;
+						cout << endl;
+
+
 					}
 				}
 				if (!found)
@@ -330,34 +358,42 @@ int main(int argc, char * argv[]) {
 		}
 		else if (parsedInput[0] == "PB")
 		{
-		try {
-			for (int lcv = 0; lcv < bookList.size(); lcv++)
-			{
-				cout << "Title: " << bookList[lcv].title << endl;
+			
+			try {
+				cout << "List of Books: " << endl;
+				for (int lcv = 0; lcv < bookList.size(); lcv++)
+				{
+					cout << bookList[lcv].title << " - " << bookList[lcv].isbn << endl;
+					cout << endl;
+				}
+				cout << endl;
+
 			}
-		}
-		catch (invalid_argument e) {
-			cout << e.what() << endl;
-		}
+			catch (invalid_argument e) {
+				cout << e.what() << endl;
+			}
 
 		}
 		else if (parsedInput[0] == "PC")
 		{
 
-		try {
-			for (int lcv = 0; lcv < courseList.size(); lcv++)
-			{
-				cout << "Title: " << courseList[lcv].name << endl;
+			try {
+				cout << "List of all courses: " << endl;
+				for (int lcv = 0; lcv < courseList.size(); lcv++)
+				{
+					cout << courseList[lcv].deptID << " " << courseList[lcv].courseNum << " - " << courseList[lcv].name<< endl;
+				}
+				cout << endl;
 			}
-		}
-		catch (invalid_argument e) {
-			cout << e.what() << endl;
-		}
+			catch (invalid_argument e) {
+				cout << e.what() << endl;
+			}
 
 		}
 		else if (parsedInput[0] == "PY")
 		{
 			try {
+				cout << "Books realeased after " << parsedInput[1] << ": "<<endl;
 				for (int lcv = 0; lcv < bookList.size(); lcv++)
 				{
 					if (!bookList[lcv].dateOfPublication.empty()) {
@@ -367,18 +403,19 @@ int main(int argc, char * argv[]) {
 						int req_year = stoi(parsedInput[1].substr(3, 7));
 						if (year > req_year)
 						{
-							cout << " Title " << bookList[lcv].title << endl;
+							cout << bookList[lcv].title <<" - " <<bookList[lcv].isbn<< endl;
 						}
 						else if (year == req_year)
 						{
 							if (month >= req_month)
 							{
-								cout << " Title " << bookList[lcv].title << endl;
+								cout << bookList[lcv].title << " - " << bookList[lcv].isbn << endl;
 
 							}
 						}
 					}
 				}
+				cout << endl;
 			}
 			catch (invalid_argument e) {
 				cout << e.what() << endl;
@@ -387,25 +424,38 @@ int main(int argc, char * argv[]) {
 		else if (parsedInput[0] == "PD")
 		{
 			bool found = false;
+			vector<string> coursesNames;
+			vector<string> isbnList;
 			try {
+				
 				if (parsedInput.size() != 2)
 					throw invalid_argument("Not correct input size.");
+				cout << "List of Books used in " << parsedInput[1] <<" department: "<< endl;
+
 				for (int lcv = 0; lcv < courseList.size(); lcv++) {
 					if (courseList[lcv].deptID == parsedInput[1])
 					{
 						found = true;
 						for (int lcv2 = 0; lcv2 < courseList[lcv].courseSections.size(); lcv2++)
 						{
+								
 							for (int lcv3 = 0; lcv3 < courseList[lcv].courseSections[lcv2].books.size(); lcv3++)
 							{
-								cout << endl;
-								cout << courseList[lcv].deptID<<" " << courseList[lcv].courseSections[lcv2].sectionNum << endl;
-								
-								cout << endl;
+							  
+								if(find(coursesNames.begin(), coursesNames.end(), courseList[lcv].courseSections[lcv2].books[lcv3].title) == coursesNames.end())
+									coursesNames.push_back(courseList[lcv].courseSections[lcv2].books[lcv3].title);
+								if (find(isbnList.begin(), isbnList.end(), courseList[lcv].courseSections[lcv2].books[lcv3].title) == isbnList.end())
+									isbnList.push_back(courseList[lcv].courseSections[lcv2].books[lcv3].isbn);
 							}
 						}
+
 					}
 				}
+				for (int lcv4 = 0; lcv4 < coursesNames.size(); lcv4++)
+				{
+					cout << coursesNames[lcv4] << " - " << isbnList[lcv4] << endl;
+				}
+				cout << endl;
 				if (!found)
 					throw invalid_argument("Book/Course not found");
 			}
@@ -420,9 +470,9 @@ int main(int argc, char * argv[]) {
 		else {
 
 		}
-		
+
 	}
 
 	system("pause");
-	
+
 }
