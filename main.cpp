@@ -9,6 +9,11 @@
 #include <fstream>
 using namespace std;
 
+class version {
+public:
+	string cost;
+	string typeofQuality;
+};
 class book {
 public:
 	string isbn;
@@ -18,7 +23,7 @@ public:
 	string dateOfPublication;
 	string author;
 	string edition;
-	string version;
+	vector<version> versionList;
 	string forcedBook;
 
 };
@@ -146,22 +151,58 @@ int main(int argc, char * argv[]) {
 					if (parsedInput[1] == bookList[lcv].isbn)
 					{
 						found = true;
-						bookList[lcv].cost = parsedInput[2];
-						if (parsedInput[3] == "N")
-							bookList[lcv].version = "New";
-						else if(parsedInput[3] == "U")
-							bookList[lcv].version = "Used";
-						else if(parsedInput[3] == "R" )
-							bookList[lcv].version = "Rental";
-						else if(parsedInput[3] == "E")
-							bookList[lcv].version = "Electronic";
-						else {
-							throw invalid_argument("Not a proper version");
+						if (bookList[lcv].versionList.empty())
+						{
+							version tempVersion;
+							if (parsedInput[3] == "N")
+								tempVersion.typeofQuality = "New";
+							else if (parsedInput[3] == "U")
+								tempVersion.typeofQuality = "Used";
+							else if (parsedInput[3] == "R")
+								tempVersion.typeofQuality = "Rental";
+							else if (parsedInput[3] == "E")
+								tempVersion.typeofQuality = "Electronic";
+							else {
+								throw invalid_argument("Not a proper version");
+							}
+							bookList[lcv].versionList.push_back(tempVersion);
+							bookList[lcv].cost = parsedInput[2];
+
 						}
+						else
+						{
+							bool foundVersion = false;
+							for (int lcv2 = 0; lcv2 < bookList[lcv].versionList.size(); lcv2++)
+							{
+								if (parsedInput[3] == bookList[lcv].versionList[lcv2].typeofQuality)
+								{
+									bookList[lcv].cost = parsedInput[2];
+									found = true;
+
+								}
+							}
+							if (!found)
+							{
+								version tempVersion;
+								if (parsedInput[3] == "N")
+									tempVersion.typeofQuality = "New";
+								else if (parsedInput[3] == "U")
+									tempVersion.typeofQuality = "Used";
+								else if (parsedInput[3] == "R")
+									tempVersion.typeofQuality = "Rental";
+								else if (parsedInput[3] == "E")
+									tempVersion.typeofQuality = "Electronic";
+								else {
+									throw invalid_argument("Not a proper version");
+								}
+								bookList[lcv].versionList.push_back(tempVersion);
+								bookList[lcv].cost = parsedInput[2];
+							}							
+						}						
 					}
 				}
-				if (!found)
-					throw invalid_argument("Book not found");
+			if (!found)
+				throw invalid_argument("Book not found");
 			}
 			catch (invalid_argument e) {
 				cout << e.what() << endl;
@@ -334,14 +375,17 @@ int main(int argc, char * argv[]) {
 						cout << "ISBN: " << bookList[lcv].isbn << endl;
 						if (!bookList[lcv].author.empty())
 							cout << "Author: " << bookList[lcv].author << endl;
-						if (!bookList[lcv].cost.empty())
-							cout<<"Price: "<< bookList[lcv].cost << endl;
+						
 						if (!bookList[lcv].dateOfPublication.empty())
 							cout << "Date of Publication: " << bookList[lcv].dateOfPublication << endl;
 						if (!bookList[lcv].edition.empty())
 							cout << "Edition: " << bookList[lcv].edition << endl;
-						if (!bookList[lcv].version.empty())
-							cout<<"Version: "<< bookList[lcv].version << endl;
+						for (int lcv2 = 0; lcv2 < bookList[lcv].versionList.size(); lcv2++)
+						{
+							if (!bookList[lcv].cost.empty())
+								cout << "Price for Version " << bookList[lcv].versionList[lcv].typeofQuality << ": "<<bookList[lcv].cost << endl;
+
+						}
 						if (!bookList[lcv].forcedBook.empty())
 							cout << "Required : "<< bookList[lcv].forcedBook << endl;
 						cout << endl;
@@ -466,6 +510,7 @@ int main(int argc, char * argv[]) {
 		}
 		else if (parsedInput[0] == "PM")
 		{
+
 		}
 		else {
 
