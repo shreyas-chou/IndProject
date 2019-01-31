@@ -19,7 +19,6 @@ public:
 	string isbn;
 	string title;
 	string course;
-	string cost;
 	string dateOfPublication;
 	string author;
 	string edition;
@@ -166,7 +165,7 @@ int main(int argc, char * argv[]) {
 								throw invalid_argument("Not a proper version");
 							}
 							bookList[lcv].versionList.push_back(tempVersion);
-							bookList[lcv].cost = parsedInput[2];
+							bookList[lcv].versionList[bookList[lcv].versionList.size()-1].cost = parsedInput[2];
 
 						}
 						else
@@ -176,12 +175,12 @@ int main(int argc, char * argv[]) {
 							{
 								if (parsedInput[3] == bookList[lcv].versionList[lcv2].typeofQuality)
 								{
-									bookList[lcv].cost = parsedInput[2];
-									found = true;
+									bookList[lcv].versionList[lcv2].cost = parsedInput[2];
+									foundVersion = true;
 
 								}
 							}
-							if (!found)
+							if (!foundVersion)
 							{
 								version tempVersion;
 								if (parsedInput[3] == "N")
@@ -195,8 +194,10 @@ int main(int argc, char * argv[]) {
 								else {
 									throw invalid_argument("Not a proper version");
 								}
+
 								bookList[lcv].versionList.push_back(tempVersion);
-								bookList[lcv].cost = parsedInput[2];
+								bookList[lcv].versionList[bookList[lcv].versionList.size() - 1].cost = parsedInput[2];
+
 							}							
 						}						
 					}
@@ -340,14 +341,16 @@ int main(int argc, char * argv[]) {
 						{
 							if (parsedInput[3] == courseList[lcv].courseSections[lcv2].sectionNum)
 							{
+								cout << endl;
+								cout << "Books required for " << courseList[lcv].deptID << " " << courseList[lcv].courseNum << " " << courseList[lcv].courseSections[lcv2].sectionNum << " : " << endl;
+
 								for (int lcv3 = 0; lcv3 < courseList[lcv].courseSections[lcv2].books.size(); lcv3++)
 								{
 									found = true;
-									cout << endl;
-									cout << "Books required for " << courseList[lcv].deptID << " " << courseList[lcv].courseNum << " " << courseList[lcv].courseSections[lcv2].sectionNum << " : " << endl;
 									cout << courseList[lcv].courseSections[lcv2].books[lcv3].title << " - " << courseList[lcv].courseSections[lcv2].books[lcv3].isbn << endl;
-									cout << endl;
 								}
+								cout << endl;
+
 							}
 						}
 					}
@@ -382,9 +385,8 @@ int main(int argc, char * argv[]) {
 							cout << "Edition: " << bookList[lcv].edition << endl;
 						for (int lcv2 = 0; lcv2 < bookList[lcv].versionList.size(); lcv2++)
 						{
-							if (!bookList[lcv].cost.empty())
-								cout << "Price for Version " << bookList[lcv].versionList[lcv].typeofQuality << ": "<<bookList[lcv].cost << endl;
-
+							if (!bookList[lcv].versionList.empty())
+								cout << "Price for Version " << bookList[lcv].versionList[lcv2].typeofQuality << ": " << bookList[lcv].versionList[lcv2].cost << endl;
 						}
 						if (!bookList[lcv].forcedBook.empty())
 							cout << "Required : "<< bookList[lcv].forcedBook << endl;
@@ -510,14 +512,68 @@ int main(int argc, char * argv[]) {
 		}
 		else if (parsedInput[0] == "PM")
 		{
+		try {
+			int totalMax = 0;
+			int totalMin = 0;
+			int maxCount = 0;
+			int minCount = 0;
+
+			if (parsedInput.size() != 2)
+				throw invalid_argument("Average: Not enough Arguments");
+			for (int lcv = 0; lcv < courseList.size(); lcv++)
+			{
+				if (courseList[lcv].deptID == parsedInput[1])
+				{
+					for (int lcv2 = 0; lcv2 < courseList[lcv].courseSections.size(); lcv2++)
+					{
+						for (int lcv3 = 0; lcv3 < courseList[lcv].courseSections[lcv2].books.size(); lcv3++)
+						{
+							int tempMax = 0;
+							bool countForMin = false;
+							if (courseList[lcv].courseSections[lcv2].books[lcv3].forcedBook == "Required")
+								countForMin = true;
+							int tempMin = stoi(courseList[lcv].courseSections[lcv2].books[lcv3].versionList[0].cost);
+							for (int lcv4 = 0; lcv4 < courseList[lcv].courseSections[lcv2].books[lcv3].versionList.size(); lcv4++)
+							{
+
+								if (stoi(courseList[lcv].courseSections[lcv2].books[lcv3].versionList[lcv4].cost) > tempMax)
+									tempMax = stoi(courseList[lcv].courseSections[lcv2].books[lcv3].versionList[lcv4].cost);
+
+								if (stoi(courseList[lcv].courseSections[lcv2].books[lcv3].versionList[lcv4].cost) < tempMin)
+									tempMin = stoi(courseList[lcv].courseSections[lcv2].books[lcv3].versionList[lcv4].cost);
+							}
+							maxCount++;
+							totalMax += tempMax;
+							if (countForMin)
+							{
+								minCount++;
+								totalMin += tempMin;
+							}
+
+						}
+					}
+				}
+			}
+			int avg_max = -1;
+			int avg_min = -1;
+			if (maxCount != 0)
+				avg_max = totalMax / maxCount;
+			if(minCount!=0)
+				 avg_min = totalMin / minCount;
+			cout << "AVERAGE MAX: " << avg_max << endl;
+			cout << "AVERAGE MIN: " << avg_min << endl;
+		}
+		catch (invalid_argument e) {
+			cout << e.what() << endl;
+		}
 
 		}
 		else {
+			
 
 		}
-
 	}
 
-	system("pause");
+		system("pause");
 
 }
